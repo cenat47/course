@@ -31,22 +31,7 @@ def create_hotel(
     })
 
 
-@app.put("/hotels/{hotel_id}")
-def put_hotel(hotel_id: int, title: str = Body(embed=True),name: str = Body(embed=True)):
-    global hotels
-    hotels[hotel_id-1] = {
-        "id": hotel_id,
-        "title": title,
-        "name": name}
 
-@app.patch("/hotels/{hotel_id}")
-def patch_hotel(hotel_id: int, title: str = Body(None, embed=True),name: str = Body(None, embed=True)):
-    global hotels
-    if title is not None:
-        hotels[hotel_id-1]["title"] = title
-    
-    if name is not None:
-        hotels[hotel_id-1]["name"] = name
 
 
 if __name__ == "__main__":
