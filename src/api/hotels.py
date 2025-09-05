@@ -1,39 +1,36 @@
 from  fastapi import  Body, Query, APIRouter, Depends
+from models.hotels import HotelsOrm
 from src.api.dependencies import PaginathionDep, PaginathionParams
 from src.schemas.hotels import Hotel, HotelPATCH
-
+from sqlalchemy import insert, select
+from src.database import async_session_maker
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
-hotels = [
-    {"id": 1, "title": "Sochi", "name": "ван"},
-    {"id": 2, "title": "Дубай", "name": "ту"},
-    {"id": 3, "title": "Мальдивы", "name": "maldivi"},
-    {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
-    {"id": 5, "title": "Москва", "name": "moscow"},
-    {"id": 6, "title": "Казань", "name": "kazan"},
-    {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
-]
-
-
-
-
-@router.get("/hotels")
-def get_hotels(
+@router.get("")
+async def get_hotels(
         paginathion: PaginathionDep,
         id: int | None = Query(None, description="Айдишник"),
         title: str | None = Query(None, description="Название отеля"),
 ):
-    hotels_ = []
-    for hotel in hotels:
-        if id and hotel["id"] != id:
-            continue
-        if title and hotel["title"] != title:
-            continue
-        hotels_.append(hotel)
-    if PaginathionParams.page and PaginathionParams.per_page:
-        return hotels_[PaginathionParams.per_page * (PaginathionParams.page-1):][:PaginathionParams.per_page]
-    return hotels_
+    per_page = paginathion.per_page or 5
+    async with async_session_maker() as session:
+        query = select(HotelsOrm)
+        if id:
+            query.filter_by(id=id)
+        if title:
+            query.filter_by(title=title)
+        query =(
+                query
+                .limit(per_page)
+                .offset(per_page*(paginathion.page -1))
+                )
+        result = await session.execute(query)
+        hotels = result.scalars().all()
+        return hotels
+    # if PaginathionParams.page and PaginathionParams.per_page:
+    #     return hotels_[PaginathionParams.per_page * (PaginathionParams.page-1):][:PaginathionParams.per_page]
+
 
 @router.delete("/{hotel_id}")
 def delete_hotel(hotel_id: int):
@@ -42,13 +39,12 @@ def delete_hotel(hotel_id: int):
     return {"status": "ok"}
 
 @router.post("")
-def create_hotel(hotel_data: Hotel = Body(openapi_examples={"1":{"summary":"Сочи", "value":{"title": "Крутой отель Сочи", "name": "бест хотел нейм"}}})):
-    global hotels
-    hotels.append({
-        "id": hotels[-1]["id"]+1,
-        "title": hotel_data.title,
-        "name": hotel_data.name
-    })
+async def create_hotel(hotel_data: Hotel = Body(openapi_examples={"1":{"summary":"Сочи", "value":{"title": "Крутой отель Сочи", "location": "бест хотел нейм"}}})):
+    async with async_session_maker() as session:
+        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
+        await session.execute(add_hotel_stmt)
+        await session.commit()
+
 
 
 
