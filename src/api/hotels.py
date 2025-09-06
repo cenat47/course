@@ -10,16 +10,16 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("")
 async def get_hotels(
         paginathion: PaginathionDep,
-        id: int | None = Query(None, description="Айдишник"),
-        title: str | None = Query(None, description="Название отеля"),
+        title: str | None = Query(None, description="Название"),
+        location: str | None = Query(None, description="Локация"),
 ):
     per_page = paginathion.per_page or 5
     async with async_session_maker() as session:
         query = select(HotelsOrm)
-        if id:
-            query.filter_by(id=id)
         if title:
-            query.filter_by(title=title)
+            query = query.filter(HotelsOrm.title.ilike(f'%{title}%'))
+        if location:
+            query = query.filter(HotelsOrm.location.ilike(f'%{location}%'))
         query =(
                 query
                 .limit(per_page)
@@ -28,8 +28,6 @@ async def get_hotels(
         result = await session.execute(query)
         hotels = result.scalars().all()
         return hotels
-    # if PaginathionParams.page and PaginathionParams.per_page:
-    #     return hotels_[PaginathionParams.per_page * (PaginathionParams.page-1):][:PaginathionParams.per_page]
 
 
 @router.delete("/{hotel_id}")
