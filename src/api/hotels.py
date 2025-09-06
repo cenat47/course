@@ -40,7 +40,7 @@ async def create_hotel(
     async with async_session_maker() as session:
         add_hotel = await HotelsRepository(session).add(hotel_data)
         await session.commit()
-        return add_hotel
+        return {"status": "ok", "data": add_hotel}
 
 
 @router.put("/{hotel_id}")
