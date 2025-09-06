@@ -36,17 +36,11 @@ def delete_hotel(hotel_id: int):
 async def create_hotel(
     hotel_data: Hotel = Body(
         openapi_examples={
-            "1": {
-                "summary": "Сочи",
-                "value": {"title": "Крутой отель Сочи", "location": "бест хотел нейм"},
-            }
-        }
-    )
-):
+            "1": {"summary": "Сочи","value": {"title": "Крутой отель Сочи", "location": "бест хотел нейм"},}})):
     async with async_session_maker() as session:
-        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
-        await session.execute(add_hotel_stmt)
+        add_hotel = await HotelsRepository(session).add(hotel_data)
         await session.commit()
+        return add_hotel
 
 
 @router.put("/{hotel_id}")
