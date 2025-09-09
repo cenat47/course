@@ -8,9 +8,8 @@ Create Date: 2025-09-08 21:51:13.683103
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "20645a52a430"
@@ -28,7 +27,6 @@ def upgrade() -> None:
         sa.Column("hashed_password", sa.String(length=200), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-
 
 
 def downgrade() -> None:

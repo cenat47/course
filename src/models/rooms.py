@@ -1,6 +1,8 @@
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
+
 from src.database import Base
-from sqlalchemy import String, ForeignKey
+
 
 class RoomsOrm(Base):
     __tablename__ = "Rooms"
