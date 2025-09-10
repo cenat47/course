@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, HTTPException, Response
 
 from api.dependencies import UserIdDep
 from repositories.users import UsersRepository
