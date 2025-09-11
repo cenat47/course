@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 class RoomAdd(BaseModel):
     hotel_id: int
     title: str
-    description: str
+    description: str | None = None
     price: int
     quantity: int
 
