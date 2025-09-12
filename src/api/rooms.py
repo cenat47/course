@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Body
-from src.api.dependencies import DBDep
+
 from schemas.rooms import RoomAdd, RoomPATCH
+from src.api.dependencies import DBDep
 
 router = APIRouter(prefix="/hotels", tags=["Номера"])
 
@@ -18,7 +19,8 @@ async def delete_room(db: DBDep, rooms_id: int):
 
 
 @router.post("/{hotel_id}/rooms/")
-async def create_room(db: DBDep,
+async def create_room(
+    db: DBDep,
     room_data: RoomAdd = Body(
         openapi_examples={
             "1": {
@@ -32,7 +34,7 @@ async def create_room(db: DBDep,
                 },
             }
         }
-    )
+    ),
 ):
     add_room = await db.rooms.add(room_data)
     await db.commit()
@@ -58,4 +60,4 @@ async def patch_room(db: DBDep, room_id: int, room_data: RoomPATCH):
 
 @router.get("/{hotel_id}/rooms/{room_id}")
 async def get_room_by_id(db: DBDep, room_id: int):
-        return await db.rooms.get_one_or_none(id=room_id)
+    return await db.rooms.get_one_or_none(id=room_id)

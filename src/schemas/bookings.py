@@ -1,16 +1,18 @@
+from datetime import date, datetime
+
 from pydantic import BaseModel, Field
-from datetime import date
+
 
 class BookingsAddRequest(BaseModel):
     room_id: int
     date_frome: date
-    date_to: date 
-
+    date_to: date
 
 
 class BookingsAddToDB(BookingsAddRequest):
     user_id: int
     price: int
+    create_at: datetime
 
 
 class BookingsResponse(BookingsAddToDB):

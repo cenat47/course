@@ -30,7 +30,8 @@ async def delete_hotel(db: DBDep, hotel_id: int):
 
 
 @router.post("")
-async def create_hotel(db: DBDep,
+async def create_hotel(
+    db: DBDep,
     hotel_data: HotelAdd = Body(
         openapi_examples={
             "1": {
@@ -38,7 +39,7 @@ async def create_hotel(db: DBDep,
                 "value": {"title": "Крутой отель Сочи", "location": "бест хотел нейм"},
             }
         }
-    )
+    ),
 ):
     add_hotel = await db.hotels.add(hotel_data)
     await db.commit()
@@ -57,13 +58,11 @@ async def edit_hotel(db: DBDep, hotel_id: int, hotel_data: HotelAdd = Body()):
     summary="Частичное обновление данных об отеле",
 )
 async def patch_hotel(db: DBDep, hotel_id: int, hotel_data: HotelPATCH):
-    await db.hotels.edit(
-        hotel_data, exclude_unset=True, id=hotel_id
-    )
+    await db.hotels.edit(hotel_data, exclude_unset=True, id=hotel_id)
     await db.commit()
     return {"status": "ok"}
 
 
 @router.get("/{hotel_id}")
-async def get_hotel_by_id(db: DBDep,hotel_id: int):
+async def get_hotel_by_id(db: DBDep, hotel_id: int):
     return await db.hotels.get_one_or_none(id=hotel_id)

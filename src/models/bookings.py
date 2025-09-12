@@ -1,7 +1,8 @@
-from sqlalchemy import Computed, ForeignKey, Integer, String
-from datetime import date
+from datetime import date, datetime
+
+from sqlalchemy import Computed, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.ext.hybrid import hybrid_property
+
 from src.database import Base
 
 
@@ -13,5 +14,8 @@ class BookingsOrm(Base):
     room_id: Mapped[int] = mapped_column(ForeignKey("Rooms.id"))
     date_frome: Mapped[date]
     date_to: Mapped[date]
+    create_at: Mapped[datetime]
     price: Mapped[int]
-    total_cost: Mapped[int] = mapped_column(Integer, Computed('price * (date_to - date_frome)'))
+    total_cost: Mapped[int] = mapped_column(
+        Integer, Computed("price * (date_to - date_frome)")
+    )
