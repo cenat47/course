@@ -12,3 +12,10 @@ async def add_bookings(db: DBDep, user_id: UserIdDep, booking_data: BookingsAddR
     data_return = await db.bookings.add(data)
     await db.commit()
     return data_return
+
+@router.get("/")
+async def get_all_bookings(db: DBDep):
+    return await db.bookings.get_all()
+@router.get("/me")
+async def get_users_bookings(db: DBDep, user_id: UserIdDep):
+    return await db.bookings.get_all(user_id=user_id)

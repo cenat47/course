@@ -15,9 +15,7 @@ class BookingsAddToDB(BookingsAddRequest):
 
 class BookingsResponse(BookingsAddToDB):
     id: int
-    user_id: int
     total_cost: int
-    price: int
 
 
 class BookingsPATCH(BaseModel):
