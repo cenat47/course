@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Computed, ForeignKey, Integer, String
 from datetime import date
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -14,7 +14,4 @@ class BookingsOrm(Base):
     date_frome: Mapped[date]
     date_to: Mapped[date]
     price: Mapped[int]
-
-    @hybrid_property
-    def total_cost(self) -> int:
-        return self.price * (self.date_to - self.date_frome).days
+    total_cost: Mapped[int] = mapped_column(Integer, Computed('price * (date_to - date_frome)'))

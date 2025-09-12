@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Body
 from src.api.dependencies import DBDep
-from repositories.rooms import RoomsRepository
 from schemas.rooms import RoomAdd, RoomPATCH
-from src.database import async_session_maker
 
 router = APIRouter(prefix="/hotels", tags=["Номера"])
 
