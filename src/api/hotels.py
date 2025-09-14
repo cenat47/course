@@ -1,3 +1,4 @@
+from datetime import date
 from fastapi import APIRouter, Body, Query
 
 from src.api.dependencies import DBDep, PaginathionDep
@@ -10,15 +11,21 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 async def get_hotels(
     db: DBDep,
     paginathion: PaginathionDep,
-    title: str | None = Query(None, description="Название"),
-    location: str | None = Query(None, description="Локация"),
+    date_from: date,
+    date_to: date,
+    title: str | None = None,
+    page: int | None = 1,
+    per_page: int | None = 5,
+    location: str | None = None,
 ):
     per_page = paginathion.per_page or 5
-    return await db.hotels.get_all(
-        location=location,
-        title=title,
+    return await db.hotels.get_all_by_time(
+        date_from=date_from,
+        date_to=date_to,
         limit=per_page,
         offset=per_page * (paginathion.page - 1),
+        title=title,
+        location=location
     )
 
 
