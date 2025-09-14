@@ -1,4 +1,5 @@
 from repositories.bookings import BookingsRepository
+from repositories.facilities import FacilitiesRepository
 from repositories.hotels import HotelsRepository
 from repositories.rooms import RoomsRepository
 from repositories.users import UsersRepository
@@ -15,6 +16,7 @@ class DBManager:
         self.rooms = RoomsRepository(self.session)
         self.users = UsersRepository(self.session)
         self.bookings = BookingsRepository(self.session)
+        self.facilities = FacilitiesRepository(self.session)
         return self
 
     async def __aexit__(self, *args):

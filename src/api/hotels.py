@@ -15,8 +15,8 @@ async def get_hotels(
     date_from: date,
     date_to: date,
     title: str | None = None,
-    page: int | None = 1,
-    per_page: int | None = 5,
+    # page: int | None = 1,
+    # per_page: int | None = 5,
     location: str | None = None,
 ):
     per_page = paginathion.per_page or 5
