@@ -2,7 +2,8 @@ from datetime import date
 
 from fastapi import APIRouter, Body
 
-from schemas.rooms import RoomAdd, RoomPATCH
+from schemas.facilities import RoomFacilityAdd
+from schemas.rooms import RoomAdd, RoomPATCH, RoomAddRequest
 from src.api.dependencies import DBDep
 
 router = APIRouter(prefix="/hotels", tags=["Номера"])
@@ -22,27 +23,16 @@ async def delete_room(db: DBDep, rooms_id: int):
     return {"status": "ok"}
 
 
-@router.post("/{hotel_id}/rooms/")
-async def create_room(
-    db: DBDep,
-    room_data: RoomAdd = Body(
-        openapi_examples={
-            "1": {
-                "summary": "Сочи",
-                "value": {
-                    "hotel_id": 26,
-                    "title": "Крутой отель Сочи",
-                    "description": "бест хотел нейм",
-                    "price": 2500.00,
-                    "quantity": 10,
-                },
-            }
-        }
-    ),
-):
-    add_room = await db.rooms.add(room_data)
+@router.post("/{hotel_id}/rooms")
+async def create_room(db: DBDep, room_data: RoomAddRequest = Body()):
+    _room_data = RoomAdd( **room_data.model_dump())
+    room = await db.rooms.add(_room_data)
+
+    rooms_facilities_data = [RoomFacilityAdd(room_id=room.id, facility_id=f_id) for f_id in room_data.facilities_ids]
+    await db.rooms_facilities.add_bulk(rooms_facilities_data)
     await db.commit()
-    return {"status": "ok", "data": add_room}
+
+    return {"status": "OK", "data": room}
 
 
 @router.put("/{hotel_id}/rooms/{rooms_id}")
