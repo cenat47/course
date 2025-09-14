@@ -1,4 +1,5 @@
 from datetime import date
+
 from fastapi import APIRouter, Body, Query
 
 from src.api.dependencies import DBDep, PaginathionDep
@@ -25,7 +26,7 @@ async def get_hotels(
         limit=per_page,
         offset=per_page * (paginathion.page - 1),
         title=title,
-        location=location
+        location=location,
     )
 
 

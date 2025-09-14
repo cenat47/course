@@ -1,8 +1,9 @@
-from sqlalchemy import select, func
-from repositories.utils import rooms_ids_for_booking
-from src.models.bookings import BookingsOrm
+from sqlalchemy import func, select
+
 from repositories.base import BaseRepository
+from repositories.utils import rooms_ids_for_booking
 from schemas.rooms import Rooms
+from src.models.bookings import BookingsOrm
 from src.models.rooms import RoomsOrm
 
 
