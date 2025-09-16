@@ -39,13 +39,24 @@ class BaseRepository:
         )
         await self.session.execute(add_data_stmt)
 
+    async def edit_bulk(self, data: list[BaseModel]):
+        for item in data:
+            stmt = (
+                update(self.model)
+                .where(self.model.id == item.id)
+                .values(**item.model_dump())
+            )
+            await self.session.execute(stmt)
+
     async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by):
         edit_data_stmt = (
             update(self.model)
             .values(**data.model_dump(exclude_unset=exclude_unset))
-            .filter_by(**filter_by)
+            .filter_by(**filter_by).returning(self.model)
         )
-        await self.session.execute(edit_data_stmt)
+        result = await self.session.execute(edit_data_stmt)
+        model = result.scalars().one()
+        return self.schema.model_validate(model, from_attributes=True)
 
     async def delete(self, **filter_by):
         delete_data_stmt = delete(self.model).filter_by(**filter_by)

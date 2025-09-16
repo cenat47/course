@@ -2,8 +2,8 @@ from datetime import date
 
 from fastapi import APIRouter, Body
 
-from schemas.facilities import RoomFacilityAdd
-from schemas.rooms import RoomAdd, RoomPATCH, RoomAddRequest
+from schemas.facilities import RoomFacilityAdd, RoomFacilityPatch
+from schemas.rooms import RoomAdd, RoomPATCH, RoomAddRequest, RoomPATCHRequest
 from src.api.dependencies import DBDep
 
 router = APIRouter(prefix="/hotels", tags=["Номера"])
@@ -36,20 +36,37 @@ async def create_room(db: DBDep, room_data: RoomAddRequest = Body()):
 
 
 @router.put("/{hotel_id}/rooms/{rooms_id}")
-async def edit_room(db: DBDep, rooms_id: int, room_data: RoomAdd = Body()):
-    await db.rooms.edit(room_data, id=rooms_id)
+async def edit_room(db: DBDep, rooms_id: int, room_data: RoomAddRequest = Body()):
+    _room_data = RoomAdd( **room_data.model_dump())
+    room = await db.rooms.edit(_room_data, id=rooms_id, exclude_unset=True)
+    
+    if room_data.facilities_ids is not None:
+        facilities = [
+            RoomFacilityPatch(room_id=room.id, facility_id=f_id)
+            for f_id in room_data.facilities_ids
+        ]
+        await db.rooms_facilities.replace_facilities(room.id, facilities)
+    
     await db.commit()
     return {"status": "ok"}
 
 
-@router.patch(
-    "/{hotel_id}/rooms/{room_id}",
-    summary="Частичное обновление данных о номере",
-)
-async def patch_room(db: DBDep, room_id: int, room_data: RoomPATCH):
-    await db.rooms.edit(room_data, exclude_unset=True, id=room_id)
+@router.patch("/{hotel_id}/rooms/{rooms_id}")
+async def patch_edit_room(db: DBDep, rooms_id: int, room_data: RoomPATCHRequest = Body()):
+    room_dict = room_data.model_dump(exclude_unset=True)
+    _room_data = RoomPATCH( **room_dict)
+    room = await db.rooms.edit(_room_data, id=rooms_id, exclude_unset=True)
+    
+    if room_data.facilities_ids is not None:
+        facilities = [
+            RoomFacilityPatch(room_id=room.id, facility_id=f_id)
+            for f_id in room_data.facilities_ids
+        ]
+        await db.rooms_facilities.replace_facilities(room.id, facilities)
+
     await db.commit()
     return {"status": "ok"}
+
 
 
 @router.get("/{hotel_id}/rooms/{room_id}")

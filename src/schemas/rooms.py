@@ -26,3 +26,12 @@ class RoomPATCH(BaseModel):
     description: str = Field(None)
     price: int = Field(None)
     quantity: int = Field(None)
+
+
+class RoomPATCHRequest(BaseModel):
+    hotel_id: int = Field(None)
+    title: str = Field(None)
+    description: str = Field(None)
+    price: int = Field(None)
+    quantity: int = Field(None)
+    facilities_ids: list[int] = Field(None)

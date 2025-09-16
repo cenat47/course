@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class FacilitiesAdd(BaseModel):
@@ -15,3 +15,7 @@ class RoomFacilityAdd(BaseModel):
 
 class RoomFacility(RoomFacilityAdd):
     id: int
+
+class RoomFacilityPatch(BaseModel):
+    room_id: int = Field(None)
+    facility_id: int = Field(None)
