@@ -20,6 +20,10 @@ class BookingsResponse(BookingsAddToDB):
     total_cost: int
 
 
+class Bookings(BookingsResponse):
+    ...
+
+
 class BookingsPATCH(BaseModel):
     id: int = Field(None)
     user_id: int = Field(None)

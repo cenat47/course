@@ -1,5 +1,6 @@
 from repositories.bookings import BookingsRepository
-from repositories.facilities import FacilitiesRepository, RoomsFacilitiesRepository
+from repositories.facilities import (FacilitiesRepository,
+                                     RoomsFacilitiesRepository)
 from repositories.hotels import HotelsRepository
 from repositories.rooms import RoomsRepository
 from repositories.users import UsersRepository

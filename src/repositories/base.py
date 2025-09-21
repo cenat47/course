@@ -1,10 +1,13 @@
 from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
 
+from repositories.mappers.base import DataMapper
+
 
 class BaseRepository:
     model = None
     schema: BaseModel = None
+    mapper: DataMapper = None
 
     def __init__(self, session):
         self.session = session
@@ -13,8 +16,7 @@ class BaseRepository:
         query = select(self.model).filter_by(**filter_by).filter(*filter)
         result = await self.session.execute(query)
         return [
-            self.schema.model_validate(model, from_attributes=True)
-            for model in result.scalars().all()
+            self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
         ]
 
     async def get_one_or_none(self, **filter_by):
@@ -23,7 +25,7 @@ class BaseRepository:
         model = result.scalars().one_or_none()
         if model is None:
             return None
-        return self.schema.model_validate(model, from_attributes=True)
+        return self.mapper.map_to_domain_entity(model)
 
     async def add(self, data: BaseModel):
         add_data_stmt = (
@@ -31,12 +33,10 @@ class BaseRepository:
         )
         result = await self.session.execute(add_data_stmt)
         model = result.scalars().one()
-        return self.schema.model_validate(model, from_attributes=True)
+        return self.mapper.map_to_domain_entity(model)
 
     async def add_bulk(self, data: list[BaseModel]):
-        add_data_stmt = (
-            insert(self.model).values([item.model_dump() for item in data])
-        )
+        add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
         await self.session.execute(add_data_stmt)
 
     async def edit_bulk(self, data: list[BaseModel]):
@@ -52,11 +52,12 @@ class BaseRepository:
         edit_data_stmt = (
             update(self.model)
             .values(**data.model_dump(exclude_unset=exclude_unset))
-            .filter_by(**filter_by).returning(self.model)
+            .filter_by(**filter_by)
+            .returning(self.model)
         )
         result = await self.session.execute(edit_data_stmt)
         model = result.scalars().one()
-        return self.schema.model_validate(model, from_attributes=True)
+        return self.mapper.map_to_domain_entity(model)
 
     async def delete(self, **filter_by):
         delete_data_stmt = delete(self.model).filter_by(**filter_by)
