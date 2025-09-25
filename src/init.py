@@ -1,6 +1,4 @@
-from src.connectors.redis_connecetor import RedisManager
 from src.config import settings
-redis_manager = RedisManager(
-    host=settings.REDIS_HOST,
-    port=settings.REDIS_PORT
-)
+from src.connectors.redis_connecetor import RedisManager
+
+redis_manager = RedisManager(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
