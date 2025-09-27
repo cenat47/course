@@ -17,6 +17,12 @@ def check_test_mode():
     assert settings.MODE == "TEST"
 
 
+@pytest.fixture()
+async def db():
+    async with DBManager(session_factory=async_session_maker_null_pull) as db:
+        yield db
+
+
 @pytest.fixture(scope="session", autouse=True)
 async def setup_db(check_test_mode):
     with open("tests\mock_hotels.json", "r", encoding="utf-8") as f:
@@ -37,10 +43,15 @@ async def setup_db(check_test_mode):
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def register_user(setup_db):
+async def ac():
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
-        await ac.post(
-            url="/auth/register", json={"email": "test@fe.fd", "password": "1234"}
-        )
+        yield ac
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def register_user(setup_db, ac):
+    await ac.post(
+        url="/auth/register", json={"email": "test@fe.fd", "password": "1234"}
+    )
