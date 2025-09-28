@@ -26,7 +26,7 @@ async def test_crud_booking(db):
     bookings_select = await db.bookings.get_one_or_none(id=bookings.id)
     assert bookings_select
 
-    bookings_update = await db.bookings.edit(booking_data_edit)
+    bookings_update = await db.bookings.edit(booking_data_edit, id=bookings.id)
     assert bookings_update.price == 200
 
     await db.bookings.delete(id=bookings.id)

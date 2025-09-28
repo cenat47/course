@@ -3,8 +3,9 @@ import json
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+from src.api.dependencies import get_db
 from src.config import settings
-from src.database import Base, async_session_maker_null_pull, engine_null_pool
+from src.database import Base, async_session_maker_null_pооl, engine_null_pool
 from src.main import app
 from src.models import *
 from src.schemas.hotels import HotelAdd
@@ -17,10 +18,18 @@ def check_test_mode():
     assert settings.MODE == "TEST"
 
 
-@pytest.fixture()
-async def db():
-    async with DBManager(session_factory=async_session_maker_null_pull) as db:
+async def get_db_null_pool():
+    async with DBManager(session_factory=async_session_maker_null_pооl) as db:
         yield db
+
+
+@pytest.fixture()
+async def db() -> DBManager:  # type: ignore
+    async for db in get_db_null_pool():
+        yield db
+
+
+app.dependency_overrides[get_db] = get_db_null_pool
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -36,7 +45,7 @@ async def setup_db(check_test_mode):
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
-    async with DBManager(session_factory=async_session_maker_null_pull) as db:
+    async with DBManager(session_factory=async_session_maker_null_pооl) as db:
         await db.hotels.add_bulk(hotel_models)
         await db.rooms.add_bulk(room_models)
         await db.commit()
