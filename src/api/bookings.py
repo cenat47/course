@@ -8,7 +8,7 @@ from src.schemas.bookings import BookingsAddRequest, BookingsAddToDB
 router = APIRouter(prefix="/bookings", tags=["Бронирования"])
 
 
-@router.post("/")
+@router.post("")
 async def add_bookings(db: DBDep, user_id: UserIdDep, booking_data: BookingsAddRequest):
     room_data = await db.rooms.get_one_or_none(id=booking_data.room_id)
     price = room_data.price
@@ -20,10 +20,10 @@ async def add_bookings(db: DBDep, user_id: UserIdDep, booking_data: BookingsAddR
     )
     data_return = await db.bookings.add(data)
     await db.commit()
-    return data_return
+    return {"data": data_return}
 
 
-@router.get("/")
+@router.get("")
 async def get_all_bookings(db: DBDep):
     return await db.bookings.get_all()
 

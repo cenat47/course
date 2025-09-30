@@ -10,4 +10,3 @@ async def test_get_facilities(ac):
     assert response_get.status_code == 200
     facilities = response_get.json()
     assert len(facilities) > 0
-

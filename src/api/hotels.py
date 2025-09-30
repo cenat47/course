@@ -10,19 +10,17 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
 @router.get("")
-# @cache(expire=10)
+@cache(expire=10)
 async def get_hotels(
     db: DBDep,
     paginathion: PaginathionDep,
     date_from: date,
     date_to: date,
     title: str | None = None,
-    # page: int | None = 1,
-    # per_page: int | None = 5,
     location: str | None = None,
 ):
     per_page = paginathion.per_page or 5
-    return await db.hotels.get_all_by_time(
+    a =  await db.hotels.get_all_by_time(
         date_from=date_from,
         date_to=date_to,
         limit=per_page,
@@ -30,6 +28,8 @@ async def get_hotels(
         title=title,
         location=location,
     )
+    print (a) 
+    return a
 
 
 @router.delete("/{hotel_id}")
