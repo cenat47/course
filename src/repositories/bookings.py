@@ -20,8 +20,8 @@ class BookingsRepository(BaseRepository):
         return [
             self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()
         ]
-    async def add(self, data: BaseModel):
-        rooms_query = rooms_ids_for_booking(data.date_frome, data.date_to)
+    async def add(self, data: BaseModel, hotel_id):
+        rooms_query = rooms_ids_for_booking(data.date_frome, data.date_to, hotel_id=hotel_id)
         result = await self.session.execute(rooms_query)
         available_room_ids = set(result.scalars().all())
 
@@ -32,5 +32,5 @@ class BookingsRepository(BaseRepository):
             insert(self.model).values(**data.model_dump()).returning(self.model)
         )
         result = await self.session.execute(add_data_stmt)
-        self.model = result.scalars().one()
-        return self.mapper.map_to_domain_entity(self.model)
+        created_object = result.scalars().one()
+        return self.mapper.map_to_domain_entity(created_object)

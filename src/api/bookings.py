@@ -16,9 +16,9 @@ async def add_bookings(db: DBDep, user_id: UserIdDep, booking_data: BookingsAddR
         **booking_data.model_dump(),
         user_id=user_id,
         price=price,
-        create_at=datetime.now()
+        create_at=datetime.now(),
     )
-    data_return = await db.bookings.add(data)
+    data_return = await db.bookings.add(data, hotel_id=room_data.hotel_id)
     await db.commit()
     return {"data": data_return}
 

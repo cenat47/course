@@ -4,6 +4,8 @@ from src.schemas.bookings import BookingsAddToDB
 async def test_crud_booking(db):
     user_id = (await db.users.get_all())[0].id
     rooms_id = (await db.rooms.get_all())[0].id
+    room_data = await db.rooms.get_one_or_none(id=rooms_id)
+    hotel_id = room_data.hotel_id
     booking_data = BookingsAddToDB(
         user_id=user_id,
         room_id=rooms_id,
@@ -22,7 +24,7 @@ async def test_crud_booking(db):
         price="200",
     )
 
-    bookings = await db.bookings.add(booking_data)
+    bookings = await db.bookings.add(booking_data, hotel_id=hotel_id)
     bookings_select = await db.bookings.get_one_or_none(id=bookings.id)
     assert bookings_select
 

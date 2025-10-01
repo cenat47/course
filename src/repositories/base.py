@@ -62,3 +62,5 @@ class BaseRepository:
     async def delete(self, **filter_by):
         delete_data_stmt = delete(self.model).filter_by(**filter_by)
         await self.session.execute(delete_data_stmt)
+
+        
