@@ -1,9 +1,8 @@
-from fastapi import HTTPException
 from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
 
 from src.repositories.mappers.base import DataMapper
-from sqlalchemy.exc import IntegrityError
+
 
 class BaseRepository:
     model = None
@@ -29,18 +28,12 @@ class BaseRepository:
         return self.mapper.map_to_domain_entity(model)
 
     async def add(self, data: BaseModel):
-        try:
-            add_data_stmt = (
-                insert(self.model).values(**data.model_dump()).returning(self.model)
-            )
-            result = await self.session.execute(add_data_stmt)
-            self.model = result.scalars().one()
-            return self.mapper.map_to_domain_entity(self.model)
-        except IntegrityError as e:
-            raise HTTPException(
-                status_code=409, 
-                detail="Пользователь с таким email уже существует"
-            )
+        add_data_stmt = (
+            insert(self.model).values(**data.model_dump()).returning(self.model)
+        )
+        result = await self.session.execute(add_data_stmt)
+        self.model = result.scalars().one()
+        return self.mapper.map_to_domain_entity(self.model)
 
     async def add_bulk(self, data: list[BaseModel]):
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
@@ -69,5 +62,3 @@ class BaseRepository:
     async def delete(self, **filter_by):
         delete_data_stmt = delete(self.model).filter_by(**filter_by)
         await self.session.execute(delete_data_stmt)
-
-        

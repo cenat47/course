@@ -1,5 +1,7 @@
 import pytest
+
 from tests.conftest import get_db_null_pool
+
 
 @pytest.fixture()
 async def delete_all_bookings():

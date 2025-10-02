@@ -3,7 +3,8 @@ from sqlalchemy.orm import joinedload
 
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
-from src.repositories.mappers.mappers import RoomDataMapper, RoomWithRelsDataMapper
+from src.repositories.mappers.mappers import (RoomDataMapper,
+                                              RoomWithRelsDataMapper)
 from src.repositories.utils import rooms_ids_for_booking
 
 

@@ -8,7 +8,6 @@ from fastapi import FastAPI
 sys.path.append(str(Path(__file__).parent.parent))
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from src.api.auth import router as router_auth
 from src.api.bookings import router as router_bookings
@@ -17,7 +16,6 @@ from src.api.hotels import router as router_hotels
 from src.api.images import router as router_images
 from src.api.rooms import router as router_rooms
 from src.init import redis_manager
-from src.config import settings
 
 
 @asynccontextmanager

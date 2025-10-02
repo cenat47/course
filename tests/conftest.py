@@ -1,5 +1,8 @@
+# ruff: noqa: E402
+
 import json
 from unittest import mock
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
@@ -8,7 +11,7 @@ from src.api.dependencies import get_db
 from src.config import settings
 from src.database import Base, async_session_maker_null_pооl, engine_null_pool
 from src.main import app
-from src.models import *
+from src.models import * #noqa: F403
 from src.schemas.hotels import HotelAdd
 from src.schemas.rooms import RoomAdd
 from utils.db_manager import DBManager
