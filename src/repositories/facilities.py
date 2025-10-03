@@ -15,9 +15,7 @@ class RoomsFacilitiesRepository(BaseRepository):
     model = RoomsFacilitiesOrm
     schema = RoomFacility
 
-    async def replace_facilities(
-        self, room_id: int, facilities: list[RoomFacilityPatch]
-    ):
+    async def replace_facilities(self, room_id: int, facilities: list[RoomFacilityPatch]):
         stmt = select(self.model.facility_id).where(self.model.room_id == room_id)
         result = await self.session.execute(stmt)
         current_ids = {row[0] for row in result}
@@ -38,7 +36,5 @@ class RoomsFacilitiesRepository(BaseRepository):
 
         ids_to_add = new_ids - current_ids
         if ids_to_add:
-            rows_to_add = [
-                {"room_id": room_id, "facility_id": fid} for fid in ids_to_add
-            ]
+            rows_to_add = [{"room_id": room_id, "facility_id": fid} for fid in ids_to_add]
             await self.session.execute(insert(self.model), rows_to_add)

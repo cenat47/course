@@ -3,6 +3,7 @@ from datetime import date
 from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
+from exceptions import HotelsIsNotExists
 from src.api.dependencies import DBDep, PaginathionDep
 from src.schemas.hotels import HotelAdd, HotelPATCH
 
@@ -20,7 +21,7 @@ async def get_hotels(
     location: str | None = None,
 ):
     per_page = paginathion.per_page or 5
-    return await db.hotels.get_all_by_time(
+    data = await db.hotels.get_all_by_time(
         date_from=date_from,
         date_to=date_to,
         limit=per_page,
@@ -28,6 +29,10 @@ async def get_hotels(
         title=title,
         location=location,
     )
+    if not data:
+        raise HotelsIsNotExists
+    return data
+
 
 
 @router.delete("/{hotel_id}")
@@ -73,4 +78,6 @@ async def patch_hotel(db: DBDep, hotel_id: int, hotel_data: HotelPATCH):
 
 @router.get("/{hotel_id}")
 async def get_hotel_by_id(db: DBDep, hotel_id: int):
-    return await db.hotels.get_one_or_none(id=hotel_id)
+    data =  await db.hotels.get_one_or_none(id=hotel_id)
+    if not data:
+        raise HotelsIsNotExists

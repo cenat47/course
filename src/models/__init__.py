@@ -5,9 +5,9 @@ from src.models.rooms import RoomsOrm
 from src.models.users import UsersOrm
 
 __all__ = [
-    "BookingsOrm", 
-    "FacilitiesOrm", 
-    "HotelsOrm", 
-    "RoomsOrm", 
-    "UsersOrm", 
+    "BookingsOrm",
+    "FacilitiesOrm",
+    "HotelsOrm",
+    "RoomsOrm",
+    "UsersOrm",
 ]

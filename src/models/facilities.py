@@ -7,6 +7,7 @@ from src.database import Base
 if typing.TYPE_CHECKING:
     from src.models import RoomsOrm
 
+
 class FacilitiesOrm(Base):
     __tablename__ = "Facilities"
 

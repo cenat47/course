@@ -20,8 +20,7 @@ class BookingsResponse(BookingsAddToDB):
     total_cost: int
 
 
-class Bookings(BookingsResponse):
-    ...
+class Bookings(BookingsResponse): ...
 
 
 class BookingsPATCH(BaseModel):

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
-
+from sqlalchemy.exc import NoResultFound, IntegrityError
+from exceptions import ObjectIsNotExists
 from src.repositories.mappers.base import DataMapper
 
 
@@ -15,9 +16,7 @@ class BaseRepository:
     async def get_all(self, *filter, **filter_by):
         query = select(self.model).filter_by(**filter_by).filter(*filter)
         result = await self.session.execute(query)
-        return [
-            self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
-        ]
+        return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
     async def get_one_or_none(self, **filter_by):
         query = select(self.model).filter_by(**filter_by)
@@ -27,11 +26,21 @@ class BaseRepository:
             return None
         return self.mapper.map_to_domain_entity(model)
 
+    async def get_one(self, **filter_by):
+        try:
+            query = select(self.model).filter_by(**filter_by)
+            result = await self.session.execute(query)
+            model = result.scalars().one()
+        except NoResultFound:     
+            raise ObjectIsNotExists
+        return self.mapper.map_to_domain_entity(model)
+    
     async def add(self, data: BaseModel):
-        add_data_stmt = (
-            insert(self.model).values(**data.model_dump()).returning(self.model)
-        )
-        result = await self.session.execute(add_data_stmt)
+        add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
+        try:
+            result = await self.session.execute(add_data_stmt)
+        except IntegrityError:
+            raise ObjectIsNotExists
         self.model = result.scalars().one()
         return self.mapper.map_to_domain_entity(self.model)
 
@@ -41,11 +50,7 @@ class BaseRepository:
 
     async def edit_bulk(self, data: list[BaseModel]):
         for item in data:
-            stmt = (
-                update(self.model)
-                .where(self.model.id == item.id)
-                .values(**item.model_dump())
-            )
+            stmt = update(self.model).where(self.model.id == item.id).values(**item.model_dump())
             await self.session.execute(stmt)
 
     async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by):
@@ -56,9 +61,13 @@ class BaseRepository:
             .returning(self.model)
         )
         result = await self.session.execute(edit_data_stmt)
-        model = result.scalars().one()
+        try:
+            model = result.scalars().one()
+        except NoResultFound:
+            raise ObjectIsNotExists
         return self.mapper.map_to_domain_entity(model)
 
     async def delete(self, **filter_by):
-        delete_data_stmt = delete(self.model).filter_by(**filter_by)
-        await self.session.execute(delete_data_stmt)
+        delete_data_stmt = delete(self.model).filter_by(**filter_by).returning(self.model.id)
+        data = await self.session.execute(delete_data_stmt)
+        return data.scalars().all()

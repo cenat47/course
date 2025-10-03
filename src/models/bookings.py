@@ -16,6 +16,4 @@ class BookingsOrm(Base):
     date_to: Mapped[date]
     create_at: Mapped[datetime]
     price: Mapped[int]
-    total_cost: Mapped[int] = mapped_column(
-        Integer, Computed("price * (date_to - date_frome)")
-    )
+    total_cost: Mapped[int] = mapped_column(Integer, Computed("price * (date_to - date_frome)"))

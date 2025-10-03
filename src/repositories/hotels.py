@@ -2,6 +2,7 @@ from datetime import date
 
 from sqlalchemy import select
 
+from exceptions import HotelsIsNotExists, IncorrectDate
 from src.models.hotels import HotelsOrm
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
@@ -13,9 +14,10 @@ class HotelsRepository(BaseRepository):
     model = HotelsOrm
     mapper = HotelDataMapper
 
-    async def get_all_by_time(
-        self, location, title, limit, offset, date_from: date, date_to: date
-    ):
+    async def get_all_by_time(self, location, title, limit, offset, date_from: date, date_to: date):
+        if date_from >date_to:
+            raise IncorrectDate        
+        
         rooms_ids_to_get = rooms_ids_for_booking(date_from, date_to)
         hotels_ids_to_get = (
             select(RoomsOrm.hotel_id)
@@ -29,6 +31,4 @@ class HotelsRepository(BaseRepository):
             query = query.filter(HotelsOrm.location.ilike(f"%{location.strip()}%"))
         query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
-        return [
-            self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()
-        ]
+        return   [self.mapper.map_to_domain_entity(hotel) for hotel in result.scalars().all()]
